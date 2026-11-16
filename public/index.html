@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Capn Cook | Heat. Hustle. Hospitality.</title>
+    <meta
+      name="description"
+      content="Capn Cook is a neon-soaked culinary concept blending antihero energy, premium food, and cinematic nightlife vibes."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="container nav-wrap">
+          <div class="brand-block">
+            <div class="brand-mark">CC</div>
+            <div>
+              <p class="eyebrow">Desert district operation</p>
+              <h1>Capn Cook</h1>
+            </div>
+          </div>
+
+          <nav class="main-nav" aria-label="Main navigation">
+            <a href="#about">About</a>
+            <a href="#menu">Menu</a>
+            <a href="#gallery">Gallery</a>
+            <a href="#reviews">Reviews</a>
+            <a href="#book">Book</a>
+          </nav>
+
+          <button class="nav-toggle" aria-label="Toggle menu">☰</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero section">
+          <div class="container hero-grid">
+            <div class="hero-copy">
+              <p class="eyebrow glow">Smoke, spice, swagger</p>
+              <h2>Turn the night into a headline.</h2>
+              <p class="lead">
+                Capn Cook brings all the heat of a backroom chemistry set with the polish of a luxury
+                late-night venue — premium eats, high-energy service, and a vibe that never plays safe.
+              </p>
+
+              <div class="cta-row">
+                <a class="btn primary" href="#book">Book the crew</a>
+                <a class="btn secondary" href="#menu">View the menu</a>
+              </div>
+
+              <div class="hero-meta">
+                <div>
+                  <span>Location</span>
+                  <strong id="brand-location">Loading...</strong>
+                </div>
+                <div>
+                  <span>Status</span>
+                  <strong id="brand-status">Loading...</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-visual">
+              <div class="orb orb-one"></div>
+              <div class="orb orb-two"></div>
+              <div class="hero-card glass-panel">
+                <div class="card-topline">
+                  <span>Tonight's drop</span>
+                  <span class="pill live">Live</span>
+                </div>
+                <h3>Pink Haze Tacos</h3>
+                <p>Tequila lime slaw, slow-burn char, and a neon finish that hits like a midnight anthem.</p>
+                <div class="mini-stats">
+                  <div>
+                    <strong>4.9</strong>
+                    <span>Guest rating</span>
+                  </div>
+                  <div>
+                    <strong>18</strong>
+                    <span>Signature runs</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="about" class="section stats-block">
+          <div class="container stat-grid" id="stats-grid"></div>
+        </section>
+
+        <section class="section story-panel">
+          <div class="container split-layout">
+            <div class="story-copy">
+              <p class="eyebrow glow">The operation</p>
+              <h3>Big flavor. Clean swagger. No half-measures.</h3>
+              <p>
+                We serve the kind of food that feels custom-built for after-dark conversations — high-end,
+                slightly dangerous, and impossible to forget. Think premium ingredients, heavy smoke, and a room
+                designed for memorable nights.
+              </p>
+              <ul class="feature-list">
+                <li>Private chef drop-ins and curated events</li>
+                <li>Signature menus built for bold crowds</li>
+                <li>Late-night food service with premium presentation</li>
+              </ul>
+            </div>
+
+            <div class="story-cards glass-panel">
+              <div class="story-card">
+                <span class="tag">Custom</span>
+                <h4>Event-ready menus</h4>
+                <p>High-impact food programs tuned to private parties, launches, and packed nightlife nights.</p>
+              </div>
+              <div class="story-card">
+                <span class="tag accent">Cinematic</span>
+                <h4>Atmosphere-driven service</h4>
+                <p>Lighting, pacing, and presentation designed to make every room feel like an opening scene.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="menu" class="section">
+          <div class="container">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow glow">Signature menu</p>
+                <h3>Built for the after-hours crowd.</h3>
+              </div>
+              <div class="chip-row">
+                <button class="filter-chip active" data-filter="all">All</button>
+                <button class="filter-chip" data-filter="Signature">Signature</button>
+                <button class="filter-chip" data-filter="Street Eats">Street Eats</button>
+                <button class="filter-chip" data-filter="Chef Special">Chef Special</button>
+              </div>
+            </div>
+            <div id="menu-grid" class="menu-grid"></div>
+          </div>
+        </section>
+
+        <section id="gallery" class="section">
+          <div class="container">
+            <div class="section-head narrow">
+              <p class="eyebrow glow">The scene</p>
+              <h3>Captured in neon and smoke.</h3>
+            </div>
+            <div id="gallery-grid" class="gallery-grid"></div>
+          </div>
+        </section>
+
+        <section id="reviews" class="section">
+          <div class="container">
+            <div class="section-head narrow">
+              <p class="eyebrow glow">Testimonials</p>
+              <h3>Good reviews. Better stories.</h3>
+            </div>
+            <div id="testimonial-grid" class="testimonial-grid"></div>
+          </div>
+        </section>
+
+        <section id="book" class="section booking-section">
+          <div class="container booking-grid">
+            <div class="booking-copy">
+              <p class="eyebrow glow">Private bookings</p>
+              <h3>Put your next event on the map.</h3>
+              <p>
+                Whether it's a private dinner, product launch, or a full-night takeover, Capn Cook builds a flow
+                tailored for the room and the vibe.
+              </p>
+              <div class="mini-metrics" id="performance-metrics"></div>
+            </div>
+
+            <div class="glass-panel form-panel">
+              <form id="booking-form">
+                <div class="field-row two-up">
+                  <label>
+                    Event type
+                    <select id="event-type" name="eventType" required>
+                      <option value="">Select</option>
+                      <option value="Private dinner">Private dinner</option>
+                      <option value="Launch party">Launch party</option>
+                      <option value="Nightlife takeover">Nightlife takeover</option>
+                      <option value="Brand pop-up">Brand pop-up</option>
+                    </select>
+                  </label>
+                  <label>
+                    Guest count
+                    <input id="guest-count" name="guests" type="number" min="10" max="500" placeholder="40" required />
+                  </label>
+                </div>
+
+                <label>
+                  Date
+                  <input id="event-date" name="date" type="date" required />
+                </label>
+
+                <label>
+                  Notes
+                  <textarea id="event-notes" name="notes" rows="4" placeholder="Tell us the tone, flow, and what kind of room you want."></textarea>
+                </label>
+
+                <button class="btn primary submit-btn" type="submit">Request a booking</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section class="section contact-wrap">
+          <div class="container contact-grid">
+            <div class="glass-panel contact-card">
+              <p class="eyebrow glow">Contact</p>
+              <h3>Reach the crew.</h3>
+              <ul>
+                <li>Call: <a href="tel:+15055553357">+1 (505) 555-COOK</a></li>
+                <li>Email: <a href="mailto:hello@capncook.co">hello@capncook.co</a></li>
+                <li>Instagram: <a href="#">@capncooklab</a></li>
+              </ul>
+            </div>
+
+            <div class="glass-panel form-panel">
+              <form id="contact-form">
+                <label>
+                  Name
+                  <input id="contact-name" name="name" type="text" placeholder="Your name" required />
+                </label>
+                <label>
+                  Email
+                  <input id="contact-email" name="email" type="email" placeholder="you@example.com" required />
+                </label>
+                <label>
+                  Service
+                  <select id="contact-service" name="service">
+                    <option value="Private event">Private event</option>
+                    <option value="Catering">Catering</option>
+                    <option value="Brand activation">Brand activation</option>
+                    <option value="General inquiry">General inquiry</option>
+                  </select>
+                </label>
+                <label>
+                  Message
+                  <textarea id="contact-message" name="message" rows="4" placeholder="Tell us what kind of room, mood, and menu you're chasing." required></textarea>
+                </label>
+                <button class="btn primary submit-btn" type="submit">Send inquiry</button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-wrap">
+          <div>
+            <p class="eyebrow glow">Capn Cook</p>
+            <span>Heat. Hustle. Hospitality.</span>
+          </div>
+          <div class="footer-links">
+            <a href="#about">About</a>
+            <a href="#menu">Menu</a>
+            <a href="#book">Book</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>
