@@ -13,7 +13,7 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@capncook.co';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'CapnCook2026';
 const ADMIN_HASH = bcrypt.hashSync(ADMIN_PASSWORD, 10);
 
-const defaultState = {
+const baseState = {
   brand: {
     name: 'Capn Cook',
     tagline: 'Heat. Hustle. Hospitality.',
@@ -33,7 +33,8 @@ const defaultState = {
       price: '$24',
       category: 'Signature',
       description: 'Charred steak, ember potatoes, pepper glaze, and a bright hot-sauce finish.',
-      tag: 'Most wanted'
+      tag: 'Most wanted',
+      image: 'https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=900&q=80'
     },
     {
       id: 'pink-haze',
@@ -41,7 +42,8 @@ const defaultState = {
       price: '$18',
       category: 'Street Eats',
       description: 'Crisp tortillas, slow-cooked pork, tequila lime slaw, and pink pickled onion.',
-      tag: 'Crowd favorite'
+      tag: 'Crowd favorite',
+      image: 'https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?auto=format&fit=crop&w=900&q=80'
     },
     {
       id: 'midnight-lab',
@@ -49,7 +51,8 @@ const defaultState = {
       price: '$21',
       category: 'Chef Special',
       description: 'Fire-roasted vegetables, herbed rice, smoked chili vinaigrette, and citrus butter.',
-      tag: 'Clean move'
+      tag: 'Clean move',
+      image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80'
     },
     {
       id: 'reactor-rib',
@@ -57,7 +60,26 @@ const defaultState = {
       price: '$29',
       category: 'Heavy Hit',
       description: 'Dry-rubbed short rib, sweet heat glaze, blistered greens, and crispy shallots.',
-      tag: 'Heavy hitter'
+      tag: 'Heavy hitter',
+      image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80'
+    },
+    {
+      id: 'afterglow-ramen',
+      title: 'Afterglow Ramen',
+      price: '$22',
+      category: 'Signature',
+      description: 'Silky broth, slow-braised pork, miso char, scallion smoke, and a soft chili finish.',
+      tag: 'Hidden gem',
+      image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=80'
+    },
+    {
+      id: 'blueprint-burger',
+      title: 'Blueprint Burger',
+      price: '$26',
+      category: 'Heavy Hit',
+      description: 'Double smash burger with smoked cheddar, onion jam, and ember aioli on brioche.',
+      tag: 'Stacked',
+      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=80'
     }
   ],
   gallery: [
@@ -80,6 +102,16 @@ const defaultState = {
       title: 'Private drop',
       image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80',
       caption: 'Private service for wild nights and bigger plans.'
+    },
+    {
+      title: 'Kitchen heat',
+      image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=900&q=80',
+      caption: 'Controlled chaos with a polished finish.'
+    },
+    {
+      title: 'Night launch',
+      image: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=900&q=80',
+      caption: 'A room built for mood, movement, and memory.'
     }
   ],
   testimonials: [
@@ -97,6 +129,11 @@ const defaultState = {
       quote: 'This is the rare combo of premium ingredients and chaos-meets-craft that actually works.',
       name: 'Rae L.',
       role: 'Chef and tastemaker'
+    },
+    {
+      quote: 'Luxury production values, a dirty-sweet menu, and a room that feels like a prestige heist in motion.',
+      name: 'Vera S.',
+      role: 'Brand lead'
     }
   ],
   stats: [
@@ -146,6 +183,37 @@ const defaultState = {
     { label: 'Private bookings', value: '14 this month' },
     { label: 'Inventory sync', value: 'Live' }
   ],
+  offers: [
+    {
+      name: 'After Hours Set',
+      price: '$650',
+      blurb: 'Private menu, lighting, and crew for a premium late-night drop.'
+    },
+    {
+      name: 'Chef Table Run',
+      price: '$1200',
+      blurb: 'A dedicated tasting menu and immersive service for a sold-out room.'
+    },
+    {
+      name: 'Brand Heat Session',
+      price: '$1800',
+      blurb: 'Launch event experience with activation design and menu curation.'
+    }
+  ],
+  faq: [
+    {
+      question: 'Can you handle private events?',
+      answer: 'Yes. Capn Cook builds custom menus and room flows for private dinners, launch nights, and nightlife takeovers.'
+    },
+    {
+      question: 'Do you support large guest counts?',
+      answer: 'Absolutely. We scale from intimate chef-table experiences to 250+ guest activations with staged service.'
+    },
+    {
+      question: 'What kind of vibe is the food?',
+      answer: 'It is premium, smoky, bold, and designed for after-dark luxury with a little edge.'
+    }
+  ],
   leads: []
 };
 
@@ -153,24 +221,23 @@ function ensureStore() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 
   if (!fs.existsSync(STORE_PATH)) {
-    fs.writeFileSync(STORE_PATH, JSON.stringify(defaultState, null, 2));
+    fs.writeFileSync(STORE_PATH, JSON.stringify(baseState, null, 2));
   }
-
-  return JSON.parse(fs.readFileSync(STORE_PATH, 'utf8'));
-}
-
-function saveStore(state) {
-  fs.writeFileSync(STORE_PATH, JSON.stringify(state, null, 2));
 }
 
 function readStore() {
   try {
+    ensureStore();
     const raw = fs.readFileSync(STORE_PATH, 'utf8');
-    if (!raw.trim()) return defaultState;
+    if (!raw.trim()) return structuredClone(baseState);
     return JSON.parse(raw);
   } catch (error) {
-    return defaultState;
+    return structuredClone(baseState);
   }
+}
+
+function saveStore(state) {
+  fs.writeFileSync(STORE_PATH, JSON.stringify(state, null, 2));
 }
 
 function createLeadRecord(kind, payload) {
@@ -184,6 +251,7 @@ function createLeadRecord(kind, payload) {
 
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'capn-cook-super-secret',
@@ -203,41 +271,17 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, service: 'Capn Cook', timestamp: new Date().toISOString() });
 });
 
-app.get('/api/brand', (req, res) => {
-  res.json(readStore().brand);
-});
-
-app.get('/api/menu', (req, res) => {
-  res.json(readStore().menu);
-});
-
-app.get('/api/gallery', (req, res) => {
-  res.json(readStore().gallery);
-});
-
-app.get('/api/testimonials', (req, res) => {
-  res.json(readStore().testimonials);
-});
-
-app.get('/api/stats', (req, res) => {
-  res.json(readStore().stats);
-});
-
-app.get('/api/performance', (req, res) => {
-  res.json(readStore().performance);
-});
-
-app.get('/api/roster', (req, res) => {
-  res.json(readStore().roster);
-});
-
-app.get('/api/schedule', (req, res) => {
-  res.json(readStore().schedule);
-});
-
-app.get('/api/operations', (req, res) => {
-  res.json(readStore().operations);
-});
+app.get('/api/brand', (req, res) => res.json(readStore().brand));
+app.get('/api/menu', (req, res) => res.json(readStore().menu));
+app.get('/api/gallery', (req, res) => res.json(readStore().gallery));
+app.get('/api/testimonials', (req, res) => res.json(readStore().testimonials));
+app.get('/api/stats', (req, res) => res.json(readStore().stats));
+app.get('/api/performance', (req, res) => res.json(readStore().performance));
+app.get('/api/roster', (req, res) => res.json(readStore().roster));
+app.get('/api/schedule', (req, res) => res.json(readStore().schedule));
+app.get('/api/operations', (req, res) => res.json(readStore().operations));
+app.get('/api/offers', (req, res) => res.json(readStore().offers));
+app.get('/api/faq', (req, res) => res.json(readStore().faq));
 
 app.get('/api/leads', (req, res) => {
   const state = readStore();
@@ -278,6 +322,32 @@ app.post('/api/booking', (req, res) => {
   saveStore(state);
 
   res.status(201).json({ success: true, message: 'Booking request queued. A crew member will contact you.', lead });
+});
+
+app.post('/api/newsletter', (req, res) => {
+  const { email } = req.body || {};
+  if (!email) {
+    return res.status(400).json({ success: false, error: 'Email is required.' });
+  }
+
+  const state = readStore();
+  const lead = createLeadRecord('newsletter', { email });
+  state.leads.push(lead);
+  saveStore(state);
+
+  res.status(201).json({ success: true, message: 'You are locked in for the next Capn Cook drop.', lead });
+});
+
+app.post('/api/estimate', (req, res) => {
+  const { guests, eventType } = req.body || {};
+  const guestCount = Number(guests || 0);
+  const baseRate = 180;
+  const serviceRate = 75;
+  const eventMultiplier = eventType === 'Nightlife takeover' ? 1.4 : eventType === 'Brand pop-up' ? 1.2 : 1;
+
+  const estimate = Math.round((guestCount * baseRate + serviceRate * 12) * eventMultiplier);
+
+  res.json({ success: true, estimate: `$${estimate.toLocaleString()}`, currency: 'USD' });
 });
 
 app.post('/api/admin/login', (req, res) => {
@@ -334,6 +404,37 @@ app.delete('/api/admin/leads/:id', (req, res) => {
 
   saveStore(state);
   res.json({ success: true, message: 'Lead removed.' });
+});
+
+app.get('/api/admin/content', (req, res) => {
+  if (!req.session.authenticated) {
+    return res.status(401).json({ error: 'Not authenticated.' });
+  }
+
+  const state = readStore();
+  res.json({
+    brand: state.brand,
+    offers: state.offers,
+    faq: state.faq,
+    menu: state.menu
+  });
+});
+
+app.post('/api/admin/content', (req, res) => {
+  if (!req.session.authenticated) {
+    return res.status(401).json({ error: 'Not authenticated.' });
+  }
+
+  const state = readStore();
+  const { brand, offers, faq, menu } = req.body || {};
+
+  if (brand) state.brand = { ...state.brand, ...brand };
+  if (offers) state.offers = offers;
+  if (faq) state.faq = faq;
+  if (menu) state.menu = menu;
+
+  saveStore(state);
+  res.json({ success: true, message: 'Capn Cook content updated.' });
 });
 
 app.get('/admin', (req, res) => {

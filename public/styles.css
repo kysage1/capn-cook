@@ -6,7 +6,7 @@
     <title>Capn Cook | Heat. Hustle. Hospitality.</title>
     <meta
       name="description"
-      content="Capn Cook is a neon-soaked culinary concept blending antihero energy, premium food, and cinematic nightlife vibes."
+      content="Capn Cook is a cinematic neon antihero restaurant and nightlife brand experience with premium food, event production, and luxury atmosphere."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -31,9 +31,9 @@
           <nav class="main-nav" aria-label="Main navigation">
             <a href="#about">About</a>
             <a href="#menu">Menu</a>
-            <a href="#missions">Missions</a>
+            <a href="#offers">Offers</a>
             <a href="#gallery">Gallery</a>
-            <a href="#reviews">Reviews</a>
+            <a href="#faq">FAQ</a>
             <a href="#book">Book</a>
           </nav>
 
@@ -130,7 +130,7 @@
           </div>
         </section>
 
-        <section id="missions" class="section mission-panel">
+        <section class="section mission-panel">
           <div class="container">
             <div class="section-head narrow">
               <p class="eyebrow glow">Mission control</p>
@@ -155,6 +155,16 @@
               </div>
             </div>
             <div id="menu-grid" class="menu-grid"></div>
+          </div>
+        </section>
+
+        <section id="offers" class="section offer-panel">
+          <div class="container">
+            <div class="section-head narrow">
+              <p class="eyebrow glow">Experience packages</p>
+              <h3>Choose your room and your chaos.</h3>
+            </div>
+            <div id="offers-grid" class="offers-grid"></div>
           </div>
         </section>
 
@@ -195,6 +205,45 @@
               <h3>Good reviews. Better stories.</h3>
             </div>
             <div id="testimonial-grid" class="testimonial-grid"></div>
+          </div>
+        </section>
+
+        <section id="faq" class="section faq-panel">
+          <div class="container faq-wrap">
+            <div class="section-head narrow">
+              <p class="eyebrow glow">FAQ</p>
+              <h3>Everything you need to know.</h3>
+            </div>
+            <div id="faq-list" class="faq-list"></div>
+          </div>
+        </section>
+
+        <section class="section estimate-panel">
+          <div class="container estimate-grid">
+            <div class="estimate-copy">
+              <p class="eyebrow glow">Quick estimate</p>
+              <h3>Get the room cost in seconds.</h3>
+              <p>Tell us how many guests and the vibe, and the crew will estimate the flow and service layer.</p>
+            </div>
+            <div class="glass-panel form-panel">
+              <form id="estimate-form">
+                <label>
+                  Guests
+                  <input id="estimate-guests" type="number" min="10" value="40" required />
+                </label>
+                <label>
+                  Event type
+                  <select id="estimate-type">
+                    <option value="Private dinner">Private dinner</option>
+                    <option value="Launch party">Launch party</option>
+                    <option value="Nightlife takeover">Nightlife takeover</option>
+                    <option value="Brand pop-up">Brand pop-up</option>
+                  </select>
+                </label>
+                <button type="submit" class="btn primary submit-btn">Estimate</button>
+                <div id="estimate-result" class="estimate-result">Projected spend: $0</div>
+              </form>
+            </div>
           </div>
         </section>
 
@@ -283,6 +332,19 @@
                 <button class="btn primary submit-btn" type="submit">Send inquiry</button>
               </form>
             </div>
+          </div>
+        </section>
+
+        <section class="section newsletter-section">
+          <div class="container newsletter-box glass-panel">
+            <div>
+              <p class="eyebrow glow">Insider list</p>
+              <h3>Get the next Capn Cook drop.</h3>
+            </div>
+            <form id="newsletter-form" class="newsletter-form">
+              <input id="newsletter-email" type="email" placeholder="you@example.com" required />
+              <button type="submit" class="btn primary">Join</button>
+            </form>
           </div>
         </section>
       </main>

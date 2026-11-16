@@ -1,7 +1,7 @@
 {
   "name": "capn-cook",
-  "version": "1.1.0",
-  "description": "Capn Cook — cinematic neon antihero restaurant and nightlife brand web app",
+  "version": "2.0.0",
+  "description": "Capn Cook — a cinematic neon antihero restaurant, nightlife, and experience brand site",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,11 +9,11 @@
   },
   "keywords": [
     "capn-cook",
-    "express",
-    "node",
     "restaurant",
     "nightlife",
-    "admin-dashboard"
+    "express",
+    "admin-dashboard",
+    "neon-brand"
   ],
   "author": "kysage1",
   "license": "MIT",

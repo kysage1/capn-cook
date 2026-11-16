@@ -203,6 +203,7 @@ textarea {
   padding: 0.95rem 1.5rem;
   font-weight: 700;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
 }
 
 .btn:hover {
@@ -397,13 +398,20 @@ textarea {
 .contact-card h3,
 .mission-panel h3,
 .crew-panel h3,
-.schedule-panel h3 {
+.schedule-panel h3,
+.offer-panel h3,
+.faq-panel h3,
+.estimate-copy h3 {
   margin: 0 0 14px;
   font-size: clamp(2rem, 3vw, 3rem);
   letter-spacing: -0.06em;
 }
 
-.story-copy p {
+.story-copy p,
+.estimate-copy p,
+.booking-copy p,
+.contact-card ul,
+.faq-item p {
   color: var(--muted);
   line-height: 1.8;
 }
@@ -475,16 +483,35 @@ textarea {
   line-height: 1.7;
 }
 
-.operations-grid {
+.operations-grid,
+.offers-grid,
+.roster-grid,
+.schedule-grid,
+.menu-grid,
+.gallery-grid,
+.testimonial-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
+}
+
+.operations-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.operation-box,
+.offer-card,
+.roster-card,
+.schedule-item,
+.menu-card,
+.gallery-item,
+.quote-card,
+.faq-item {
+  border: 1px solid var(--line);
+  background: rgba(18, 24, 31, 0.8);
 }
 
 .operation-box {
   padding: 24px 18px;
-  border: 1px solid var(--line);
-  background: rgba(20, 26, 35, 0.8);
   border-radius: 20px;
 }
 
@@ -537,14 +564,10 @@ textarea {
 }
 
 .menu-grid {
-  display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
 }
 
 .menu-card {
-  background: rgba(18, 24, 31, 0.82);
-  border: 1px solid var(--line);
   border-radius: 26px;
   overflow: hidden;
   transition: transform 0.2s ease, border-color 0.2s ease;
@@ -613,17 +636,40 @@ textarea {
   color: var(--muted);
 }
 
+.offers-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.offer-card {
+  padding: 22px 18px;
+  border-radius: 24px;
+}
+
+.offer-card h4 {
+  margin: 0 0 8px;
+  font-size: 1.3rem;
+}
+
+.offer-card p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.offer-card strong {
+  display: block;
+  color: var(--amber);
+  font-size: 2rem;
+  letter-spacing: -0.06em;
+}
+
 .roster-grid {
-  display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
 }
 
 .roster-card {
   padding: 22px 18px;
   border-radius: 24px;
-  border: 1px solid var(--line);
-  background: rgba(18, 24, 31, 0.8);
 }
 
 .roster-card .initial {
@@ -659,16 +705,12 @@ textarea {
 }
 
 .schedule-grid {
-  display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 16px;
 }
 
 .schedule-item {
   padding: 20px 18px;
   border-radius: 20px;
-  border: 1px solid var(--line);
-  background: rgba(17, 22, 31, 0.82);
 }
 
 .schedule-item strong {
@@ -686,16 +728,12 @@ textarea {
 }
 
 .gallery-grid {
-  display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
 }
 
 .gallery-item {
   overflow: hidden;
   border-radius: 22px;
-  border: 1px solid var(--line);
-  background: rgba(18, 24, 31, 0.7);
 }
 
 .gallery-image {
@@ -721,16 +759,12 @@ textarea {
 }
 
 .testimonial-grid {
-  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
 }
 
 .quote-card {
   padding: 22px 20px 18px;
   border-radius: 24px;
-  border: 1px solid var(--line);
-  background: rgba(17, 23, 32, 0.8);
 }
 
 .quote-mark {
@@ -757,10 +791,26 @@ textarea {
   text-transform: uppercase;
 }
 
-.booking-section {
-  padding-top: 50px;
+.faq-list {
+  display: grid;
+  gap: 14px;
 }
 
+.faq-item {
+  padding: 18px 20px;
+  border-radius: 20px;
+}
+
+.faq-item h4 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.faq-item p {
+  margin: 0;
+}
+
+.estimate-grid,
 .booking-grid,
 .contact-grid {
   display: grid;
@@ -768,10 +818,13 @@ textarea {
   gap: 22px;
 }
 
-.booking-copy p,
-.contact-card ul {
-  color: var(--muted);
-  line-height: 1.8;
+.estimate-result {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  color: var(--amber);
+  font-weight: 700;
 }
 
 .mini-metrics {
@@ -844,8 +897,6 @@ textarea::placeholder {
 }
 
 .submit-btn {
-  cursor: pointer;
-  border: none;
   width: 100%;
 }
 
@@ -867,6 +918,22 @@ textarea::placeholder {
 
 .contact-card a {
   color: var(--amber);
+}
+
+.newsletter-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 26px 24px;
+  border-radius: 26px;
+}
+
+.newsletter-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  width: min(480px, 100%);
 }
 
 .site-footer {
@@ -921,16 +988,18 @@ textarea::placeholder {
 @media (max-width: 980px) {
   .hero-grid,
   .split-layout,
+  .estimate-grid,
   .booking-grid,
   .contact-grid {
     grid-template-columns: 1fr;
   }
 
-  .operations-grid,
   .menu-grid,
+  .offers-grid,
   .roster-grid,
   .gallery-grid,
-  .schedule-grid {
+  .schedule-grid,
+  .operations-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -969,15 +1038,18 @@ textarea::placeholder {
   .stat-grid,
   .operations-grid,
   .menu-grid,
+  .offers-grid,
   .roster-grid,
   .gallery-grid,
   .schedule-grid,
   .field-row.two-up,
-  .mini-metrics {
+  .mini-metrics,
+  .newsletter-form {
     grid-template-columns: 1fr;
   }
 
-  .section-head {
+  .section-head,
+  .newsletter-box {
     flex-direction: column;
     align-items: flex-start;
   }

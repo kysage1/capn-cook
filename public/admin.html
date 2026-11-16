@@ -7,7 +7,9 @@ const apiRoutes = {
   performance: '/api/performance',
   roster: '/api/roster',
   schedule: '/api/schedule',
-  operations: '/api/operations'
+  operations: '/api/operations',
+  offers: '/api/offers',
+  faq: '/api/faq'
 };
 
 const navToggle = document.querySelector('.nav-toggle');
@@ -16,25 +18,27 @@ const toastNode = document.getElementById('toast');
 
 if (navToggle) {
   navToggle.addEventListener('click', () => {
-    mainNav.classList.toggle('open');
+    if (mainNav) mainNav.classList.toggle('open');
   });
 }
 
-async function fetchJson(url) {
-  const response = await fetch(url);
+async function fetchJson(url, options = {}) {
+  const response = await fetch(url, options);
+  const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    throw new Error(data.error || 'Request failed');
   }
-  return response.json();
+  return data;
 }
 
 function showToast(message) {
+  if (!toastNode) return;
   toastNode.textContent = message;
   toastNode.classList.add('show');
   window.clearTimeout(showToast.timeoutId);
   showToast.timeoutId = window.setTimeout(() => {
     toastNode.classList.remove('show');
-  }, 2500);
+  }, 2600);
 }
 
 function renderStats(items) {
@@ -73,18 +77,11 @@ function renderMenu(items) {
   const target = document.getElementById('menu-grid');
   if (!target) return;
 
-  const imageMap = {
-    'Smoke Burner Stack': 'https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=900&q=80',
-    'Pink Haze Tacos': 'https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?auto=format&fit=crop&w=900&q=80',
-    'Midnight Lab Bowl': 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80',
-    'Reactor Rib Plate': 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80'
-  };
-
   target.innerHTML = items
     .map(
       (item) => `
         <article class="menu-card" data-category="${item.category}">
-          <div class="menu-card-image" style="background-image: url('${imageMap[item.title] || 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80'}')">
+          <div class="menu-card-image" style="background-image: url('${item.image || 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80'}')">
             <span class="menu-card-tag">${item.tag}</span>
           </div>
           <div class="menu-card-body">
@@ -111,6 +108,23 @@ function renderMenu(items) {
       });
     });
   });
+}
+
+function renderOffers(items) {
+  const target = document.getElementById('offers-grid');
+  if (!target) return;
+
+  target.innerHTML = items
+    .map(
+      (item) => `
+        <div class="offer-card">
+          <h4>${item.name}</h4>
+          <p>${item.blurb}</p>
+          <strong>${item.price}</strong>
+        </div>
+      `
+    )
+    .join('');
 }
 
 function renderRoster(items) {
@@ -184,6 +198,22 @@ function renderTestimonials(items) {
     .join('');
 }
 
+function renderFaq(items) {
+  const target = document.getElementById('faq-list');
+  if (!target) return;
+
+  target.innerHTML = items
+    .map(
+      (item) => `
+        <div class="faq-item">
+          <h4>${item.question}</h4>
+          <p>${item.answer}</p>
+        </div>
+      `
+    )
+    .join('');
+}
+
 function renderPerformance(data) {
   const target = document.getElementById('performance-metrics');
   if (!target) return;
@@ -209,7 +239,7 @@ function renderPerformance(data) {
 
 async function initSite() {
   try {
-    const [brandData, menuData, galleryData, testimonialData, statsData, performanceData, rosterData, scheduleData, operationsData] = await Promise.all([
+    const [brandData, menuData, galleryData, testimonialData, statsData, performanceData, rosterData, scheduleData, operationsData, offersData, faqData] = await Promise.all([
       fetchJson(apiRoutes.brand),
       fetchJson(apiRoutes.menu),
       fetchJson(apiRoutes.gallery),
@@ -218,12 +248,16 @@ async function initSite() {
       fetchJson(apiRoutes.performance),
       fetchJson(apiRoutes.roster),
       fetchJson(apiRoutes.schedule),
-      fetchJson(apiRoutes.operations)
+      fetchJson(apiRoutes.operations),
+      fetchJson(apiRoutes.offers),
+      fetchJson(apiRoutes.faq)
     ]);
 
     document.getElementById('brand-location').textContent = brandData.location;
     document.getElementById('brand-status').textContent = brandData.status;
+
     renderMenu(menuData);
+    renderOffers(offersData);
     renderRoster(rosterData);
     renderSchedule(scheduleData);
     renderGallery(galleryData);
@@ -231,10 +265,38 @@ async function initSite() {
     renderStats(statsData);
     renderOperations(operationsData);
     renderPerformance(performanceData);
+    renderFaq(faqData);
   } catch (error) {
     console.error('Failed to initialize site content:', error);
     showToast('Unable to load the latest Capn Cook data.');
   }
+}
+
+function bindEstimate() {
+  const form = document.getElementById('estimate-form');
+  const result = document.getElementById('estimate-result');
+  if (!form || !result) return;
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const payload = {
+      guests: document.getElementById('estimate-guests').value,
+      eventType: document.getElementById('estimate-type').value
+    };
+
+    try {
+      const response = await fetch('/api/estimate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Estimate failed');
+      result.textContent = `Projected spend: ${data.estimate}`;
+    } catch (error) {
+      showToast(error.message);
+    }
+  });
 }
 
 function setupForms() {
@@ -295,7 +357,29 @@ function setupForms() {
       }
     });
   }
+
+  const newsletterForm = document.getElementById('newsletter-form');
+  if (newsletterForm) {
+    newsletterForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const email = document.getElementById('newsletter-email').value;
+      try {
+        const response = await fetch('/api/newsletter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Newsletter signup failed');
+        newsletterForm.reset();
+        showToast(result.message);
+      } catch (error) {
+        showToast(error.message);
+      }
+    });
+  }
 }
 
 initSite();
+bindEstimate();
 setupForms();

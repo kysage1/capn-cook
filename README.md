@@ -13,7 +13,7 @@
         padding-bottom: 40px;
       }
       .admin-shell {
-        width: min(1200px, calc(100% - 28px));
+        width: min(1200px, calc(100% - 30px));
         margin: 56px auto 0;
       }
       .admin-header {
@@ -47,6 +47,17 @@
         color: var(--muted);
         margin-top: 8px;
       }
+      .login-panel {
+        padding: 24px;
+        border-radius: 28px;
+      }
+      .content-editor {
+        display: grid;
+        gap: 18px;
+      }
+      .hidden {
+        display: none !important;
+      }
       @media (max-width: 760px) {
         .admin-grid {
           grid-template-columns: 1fr;
@@ -67,11 +78,28 @@
         <a class="btn secondary" href="/">Back to site</a>
       </header>
 
-      <div class="admin-grid">
+      <div id="login-view" class="glass-panel login-panel">
+        <p class="eyebrow glow">Access required</p>
+        <h3>Operator login</h3>
+        <form id="admin-login-form">
+          <label>
+            Email
+            <input type="email" id="admin-email" required placeholder="admin@capncook.co" />
+          </label>
+          <label>
+            Password
+            <input type="password" id="admin-password" required placeholder="••••••••" />
+          </label>
+          <button type="submit" class="btn primary submit-btn">Login</button>
+        </form>
+      </div>
+
+      <div id="dashboard-view" class="admin-grid hidden">
         <section class="glass-panel form-panel">
           <p class="eyebrow glow">System status</p>
           <h3>Live backend data</h3>
           <div id="admin-performance" class="mini-metrics"></div>
+          <button id="logout-btn" class="btn secondary" style="margin-top: 16px; width: 100%;">Logout</button>
         </section>
 
         <section class="glass-panel form-panel">
@@ -79,21 +107,65 @@
           <h3>Lead stream</h3>
           <div id="lead-list" class="lead-list"></div>
         </section>
+
+        <section class="glass-panel form-panel" style="grid-column: 1 / -1;">
+          <p class="eyebrow glow">Content editor</p>
+          <h3>Update Capn Cook content</h3>
+          <div id="content-editor" class="content-editor">
+            <label>
+              Brand status
+              <input id="brand-status-edit" type="text" />
+            </label>
+            <label>
+              Brand location
+              <input id="brand-location-edit" type="text" />
+            </label>
+            <button id="save-content-btn" class="btn primary">Save content</button>
+          </div>
+        </section>
       </div>
     </div>
 
     <script>
-      async function fetchJson(url) {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to load data');
-        return response.json();
+      async function fetchJson(url, options = {}) {
+        const response = await fetch(url, options);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.error || 'Request failed');
+        }
+        return data;
       }
 
-      async function initAdmin() {
+      const loginView = document.getElementById('login-view');
+      const dashboardView = document.getElementById('dashboard-view');
+      const loginForm = document.getElementById('admin-login-form');
+      const logoutBtn = document.getElementById('logout-btn');
+
+      function renderLoginState(authenticated) {
+        loginView.classList.toggle('hidden', authenticated);
+        dashboardView.classList.toggle('hidden', !authenticated);
+      }
+
+      async function checkSession() {
+        try {
+          const session = await fetchJson('/api/admin/session');
+          renderLoginState(session.authenticated);
+          if (session.authenticated) {
+            await loadDashboard();
+            const brandData = await fetchJson('/api/brand');
+            document.getElementById('brand-status-edit').value = brandData.status || '';
+            document.getElementById('brand-location-edit').value = brandData.location || '';
+          }
+        } catch (error) {
+          console.error('Session check failed:', error);
+        }
+      }
+
+      async function loadDashboard() {
         try {
           const [performance, leads] = await Promise.all([
             fetchJson('/api/performance'),
-            fetchJson('/api/leads')
+            fetchJson('/api/admin/leads')
           ]);
 
           const metrics = [
@@ -121,25 +193,77 @@
           }
 
           leadList.innerHTML = leads
-            .slice()
-            .reverse()
             .map(
               (lead) => `
                 <div class="lead-item">
-                  <strong>${lead.name || 'Unnamed lead'}</strong>
-                  <div>${lead.eventType || lead.service || 'General inquiry'}</div>
-                  <div>${lead.email || 'No email'} ${lead.guests ? `• ${lead.guests} guests` : ''}</div>
+                  <strong>${lead.name || lead.eventType || lead.service || 'Lead'}</strong>
+                  <div>${lead.email || lead.guests ? `Guests: ${lead.guests}` : ''}</div>
+                  <div>${lead.message || lead.notes || lead.service || 'General inquiry'}</div>
                   <small>${new Date(lead.createdAt).toLocaleString()}</small>
                 </div>
               `
             )
             .join('');
         } catch (error) {
-          document.getElementById('lead-list').innerHTML = '<div class="lead-item"><strong>Data unavailable</strong><span>Check the backend and refresh.</span></div>';
+          console.error(error);
+          document.getElementById('lead-list').innerHTML = '<div class="lead-item"><strong>Access denied</strong><span>Please log in again.</span></div>';
         }
       }
 
-      initAdmin();
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = document.getElementById('admin-email').value;
+        const password = document.getElementById('admin-password').value;
+
+        try {
+          const response = await fetchJson('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          if (response.success) {
+            renderLoginState(true);
+            await loadDashboard();
+            const brandData = await fetchJson('/api/brand');
+            document.getElementById('brand-status-edit').value = brandData.status || '';
+            document.getElementById('brand-location-edit').value = brandData.location || '';
+          }
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await fetchJson('/api/admin/logout', { method: 'POST' });
+          renderLoginState(false);
+        } catch (error) {
+          console.error(error);
+        }
+      });
+
+      document.getElementById('save-content-btn').addEventListener('click', async () => {
+        const payload = {
+          brand: {
+            status: document.getElementById('brand-status-edit').value,
+            location: document.getElementById('brand-location-edit').value
+          }
+        };
+
+        try {
+          const response = await fetchJson('/api/admin/content', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          alert(response.message || 'Saved');
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+
+      checkSession();
     </script>
   </body>
 </html>
