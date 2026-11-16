@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Capn Cook Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      body {
+        padding-bottom: 40px;
+      }
+      .admin-shell {
+        width: min(1200px, calc(100% - 30px));
+        margin: 56px auto 0;
+      }
+      .admin-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+      .admin-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .lead-list {
+        display: grid;
+        gap: 14px;
+      }
+      .lead-item {
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(17, 23, 31, 0.8);
+        border: 1px solid var(--line);
+      }
+      .lead-item strong {
+        display: block;
+        margin-bottom: 8px;
+      }
+      .lead-item small {
+        display: block;
+        color: var(--muted);
+        margin-top: 8px;
+      }
+      .login-panel {
+        padding: 24px;
+        border-radius: 28px;
+      }
+      .hidden {
+        display: none !important;
+      }
+      @media (max-width: 760px) {
+        .admin-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-shell">
+      <header class="admin-header">
+        <div class="brand-block">
+          <div class="brand-mark">CC</div>
+          <div>
+            <p class="eyebrow">Admin view</p>
+            <h1>Capn Cook</h1>
+          </div>
+        </div>
+        <a class="btn secondary" href="/">Back to site</a>
+      </header>
+
+      <div id="login-view" class="glass-panel login-panel">
+        <p class="eyebrow glow">Access required</p>
+        <h3>Operator login</h3>
+        <form id="admin-login-form">
+          <label>
+            Email
+            <input type="email" id="admin-email" required placeholder="admin@capncook.co" />
+          </label>
+          <label>
+            Password
+            <input type="password" id="admin-password" required placeholder="••••••••" />
+          </label>
+          <button type="submit" class="btn primary submit-btn">Login</button>
+        </form>
+      </div>
+
+      <div id="dashboard-view" class="admin-grid hidden">
+        <section class="glass-panel form-panel">
+          <p class="eyebrow glow">System status</p>
+          <h3>Live backend data</h3>
+          <div id="admin-performance" class="mini-metrics"></div>
+          <button id="logout-btn" class="btn secondary" style="margin-top: 16px; width: 100%;">Logout</button>
+        </section>
+
+        <section class="glass-panel form-panel">
+          <p class="eyebrow glow">Sales pulse</p>
+          <h3>Lead stream</h3>
+          <div id="lead-list" class="lead-list"></div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      async function fetchJson(url, options = {}) {
+        const response = await fetch(url, options);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.error || 'Request failed');
+        }
+        return data;
+      }
+
+      const loginView = document.getElementById('login-view');
+      const dashboardView = document.getElementById('dashboard-view');
+      const loginForm = document.getElementById('admin-login-form');
+      const logoutBtn = document.getElementById('logout-btn');
+
+      function renderLoginState(authenticated, user) {
+        if (authenticated) {
+          loginView.classList.add('hidden');
+          dashboardView.classList.remove('hidden');
+        } else {
+          loginView.classList.remove('hidden');
+          dashboardView.classList.add('hidden');
+        }
+      }
+
+      async function checkSession() {
+        try {
+          const session = await fetchJson('/api/admin/session');
+          renderLoginState(session.authenticated, session.user);
+          if (session.authenticated) {
+            await loadDashboard();
+          }
+        } catch (error) {
+          console.error('Session check failed:', error);
+        }
+      }
+
+      async function loadDashboard() {
+        try {
+          const [performance, leads] = await Promise.all([
+            fetchJson('/api/performance'),
+            fetchJson('/api/admin/leads')
+          ]);
+
+          const metrics = [
+            { label: 'Uptime', value: performance.uptime },
+            { label: 'Queue', value: performance.queue },
+            { label: 'Latency', value: performance.response },
+            { label: 'Conversion', value: performance.conversion }
+          ];
+
+          document.getElementById('admin-performance').innerHTML = metrics
+            .map(
+              (item) => `
+                <div class="metric-box">
+                  <strong>${item.value}</strong>
+                  <span>${item.label}</span>
+                </div>
+              `
+            )
+            .join('');
+
+          const leadList = document.getElementById('lead-list');
+          if (!leads.length) {
+            leadList.innerHTML = '<div class="lead-item"><strong>No leads yet.</strong><span>Waiting for the next burner drop.</span></div>';
+            return;
+          }
+
+          leadList.innerHTML = leads
+            .map(
+              (lead) => `
+                <div class="lead-item">
+                  <strong>${lead.name || lead.eventType || lead.service || 'Lead'}</strong>
+                  <div>${lead.email || lead.guests ? `Guests: ${lead.guests}` : ''}</div>
+                  <div>${lead.message || lead.notes || lead.service || 'General inquiry'}</div>
+                  <small>${new Date(lead.createdAt).toLocaleString()}</small>
+                </div>
+              `
+            )
+            .join('');
+        } catch (error) {
+          console.error(error);
+          document.getElementById('lead-list').innerHTML = '<div class="lead-item"><strong>Access denied</strong><span>Please log in again.</span></div>';
+        }
+      }
+
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = document.getElementById('admin-email').value;
+        const password = document.getElementById('admin-password').value;
+
+        try {
+          const response = await fetchJson('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          if (response.success) {
+            renderLoginState(true, response.user);
+            loadDashboard();
+          }
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await fetchJson('/api/admin/logout', { method: 'POST' });
+          renderLoginState(false, null);
+        } catch (error) {
+          console.error(error);
+        }
+      });
+
+      checkSession();
+    </script>
+  </body>
+</html>

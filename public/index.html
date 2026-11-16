@@ -1,277 +1,352 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Capn Cook | Heat. Hustle. Hospitality.</title>
-    <meta
-      name="description"
-      content="Capn Cook is a neon-soaked culinary concept blending antihero energy, premium food, and cinematic nightlife vibes."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;800;900&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <div class="page-shell">
-      <header class="site-header">
-        <div class="container nav-wrap">
-          <div class="brand-block">
-            <div class="brand-mark">CC</div>
-            <div>
-              <p class="eyebrow">Desert district operation</p>
-              <h1>Capn Cook</h1>
-            </div>
-          </div>
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+const bcrypt = require('bcryptjs');
+const session = require('express-session');
 
-          <nav class="main-nav" aria-label="Main navigation">
-            <a href="#about">About</a>
-            <a href="#menu">Menu</a>
-            <a href="#gallery">Gallery</a>
-            <a href="#reviews">Reviews</a>
-            <a href="#book">Book</a>
-          </nav>
+const app = express();
+const PORT = process.env.PORT || 3000;
+const DATA_DIR = path.join(__dirname, 'data');
+const STORE_PATH = path.join(DATA_DIR, 'store.json');
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@capncook.co';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'CapnCook2026';
+const ADMIN_HASH = bcrypt.hashSync(ADMIN_PASSWORD, 10);
 
-          <button class="nav-toggle" aria-label="Toggle menu">☰</button>
-        </div>
-      </header>
+const defaultState = {
+  brand: {
+    name: 'Capn Cook',
+    tagline: 'Heat. Hustle. Hospitality.',
+    subtitle: 'A neon-soaked, antihero-inspired culinary concept blending late-night fire, premium ingredients, and cinematic swagger.',
+    heroLabel: 'Desert district operation',
+    location: 'Albuquerque, NM',
+    phone: '+1 (505) 555-COOK',
+    email: 'hello@capncook.co',
+    instagram: '@capncooklab',
+    status: 'Open for private drops',
+    accent: 'Neon ember / acid pink / steel smoke'
+  },
+  menu: [
+    {
+      id: 'smoke-burner',
+      title: 'Smoke Burner Stack',
+      price: '$24',
+      category: 'Signature',
+      description: 'Charred steak, ember potatoes, pepper glaze, and a bright hot-sauce finish.',
+      tag: 'Most wanted'
+    },
+    {
+      id: 'pink-haze',
+      title: 'Pink Haze Tacos',
+      price: '$18',
+      category: 'Street Eats',
+      description: 'Crisp tortillas, slow-cooked pork, tequila lime slaw, and pink pickled onion.',
+      tag: 'Crowd favorite'
+    },
+    {
+      id: 'midnight-lab',
+      title: 'Midnight Lab Bowl',
+      price: '$21',
+      category: 'Chef Special',
+      description: 'Fire-roasted vegetables, herbed rice, smoked chili vinaigrette, and citrus butter.',
+      tag: 'Clean move'
+    },
+    {
+      id: 'reactor-rib',
+      title: 'Reactor Rib Plate',
+      price: '$29',
+      category: 'Heavy Hit',
+      description: 'Dry-rubbed short rib, sweet heat glaze, blistered greens, and crispy shallots.',
+      tag: 'Heavy hitter'
+    }
+  ],
+  gallery: [
+    {
+      title: 'Late-night prep',
+      image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=900&q=80',
+      caption: 'Kitchen crew under full neon pressure.'
+    },
+    {
+      title: 'Backroom lab',
+      image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80',
+      caption: 'Ingredients mixed to order, no shortcuts.'
+    },
+    {
+      title: 'Street scene',
+      image: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=900&q=80',
+      caption: 'The kind of crowd that never sleeps.'
+    },
+    {
+      title: 'Private drop',
+      image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80',
+      caption: 'Private service for wild nights and bigger plans.'
+    }
+  ],
+  testimonials: [
+    {
+      quote: 'Capn Cook feels like the kind of place you hear about from the wrong crowd and then end up missing when it closes.',
+      name: 'Mia K.',
+      role: 'Private event client'
+    },
+    {
+      quote: 'The energy is clean, the menu is bold, and the whole room feels like a movie scene with better snacks.',
+      name: 'Darius T.',
+      role: 'Nightlife curator'
+    },
+    {
+      quote: 'This is the rare combo of premium ingredients and chaos-meets-craft that actually works.',
+      name: 'Rae L.',
+      role: 'Chef and tastemaker'
+    }
+  ],
+  stats: [
+    { label: 'Private events hosted', value: '120+' },
+    { label: 'Signature recipes', value: '18' },
+    { label: 'Average guest rating', value: '4.9/5' },
+    { label: 'Response time', value: '< 1 day' }
+  ],
+  performance: {
+    uptime: '99.97%',
+    queue: '12 live drops',
+    response: '0.38s',
+    conversion: '28%'
+  },
+  roster: [
+    {
+      name: 'Sable Kane',
+      role: 'Head chef',
+      bio: 'Controls smoke, spice, and the impossible timing behind every service rush.'
+    },
+    {
+      name: 'Juno Vale',
+      role: 'Floor captain',
+      bio: 'Keeps the room moving with a sharp eye for mood, pacing, and premium service.'
+    },
+    {
+      name: 'Drex Mercer',
+      role: 'Event strategist',
+      bio: 'Designs high-impact drops, private bookings, and room flows that feel cinematic.'
+    },
+    {
+      name: 'Nia Coil',
+      role: 'Brand curator',
+      bio: 'Turns the vibe into a story: visuals, placemaking, and unforgettable guest energy.'
+    }
+  ],
+  schedule: [
+    { time: '18:00', label: 'Kitchen opens' },
+    { time: '19:30', label: 'Prep rush' },
+    { time: '21:00', label: 'Peak service' },
+    { time: '23:30', label: 'Private drop' },
+    { time: '01:00', label: 'Late-night closeout' }
+  ],
+  operations: [
+    { label: 'Guest flow', value: '92%' },
+    { label: 'Kitchen tempo', value: 'A+' },
+    { label: 'Private bookings', value: '14 this month' },
+    { label: 'Inventory sync', value: 'Live' }
+  ],
+  leads: []
+};
 
-      <main>
-        <section class="hero section">
-          <div class="container hero-grid">
-            <div class="hero-copy">
-              <p class="eyebrow glow">Smoke, spice, swagger</p>
-              <h2>Turn the night into a headline.</h2>
-              <p class="lead">
-                Capn Cook brings all the heat of a backroom chemistry set with the polish of a luxury
-                late-night venue — premium eats, high-energy service, and a vibe that never plays safe.
-              </p>
+function ensureStore() {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
 
-              <div class="cta-row">
-                <a class="btn primary" href="#book">Book the crew</a>
-                <a class="btn secondary" href="#menu">View the menu</a>
-              </div>
+  if (!fs.existsSync(STORE_PATH)) {
+    fs.writeFileSync(STORE_PATH, JSON.stringify(defaultState, null, 2));
+  }
 
-              <div class="hero-meta">
-                <div>
-                  <span>Location</span>
-                  <strong id="brand-location">Loading...</strong>
-                </div>
-                <div>
-                  <span>Status</span>
-                  <strong id="brand-status">Loading...</strong>
-                </div>
-              </div>
-            </div>
+  return JSON.parse(fs.readFileSync(STORE_PATH, 'utf8'));
+}
 
-            <div class="hero-visual">
-              <div class="orb orb-one"></div>
-              <div class="orb orb-two"></div>
-              <div class="hero-card glass-panel">
-                <div class="card-topline">
-                  <span>Tonight's drop</span>
-                  <span class="pill live">Live</span>
-                </div>
-                <h3>Pink Haze Tacos</h3>
-                <p>Tequila lime slaw, slow-burn char, and a neon finish that hits like a midnight anthem.</p>
-                <div class="mini-stats">
-                  <div>
-                    <strong>4.9</strong>
-                    <span>Guest rating</span>
-                  </div>
-                  <div>
-                    <strong>18</strong>
-                    <span>Signature runs</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+function saveStore(state) {
+  fs.writeFileSync(STORE_PATH, JSON.stringify(state, null, 2));
+}
 
-        <section id="about" class="section stats-block">
-          <div class="container stat-grid" id="stats-grid"></div>
-        </section>
+function readStore() {
+  try {
+    const raw = fs.readFileSync(STORE_PATH, 'utf8');
+    if (!raw.trim()) return defaultState;
+    return JSON.parse(raw);
+  } catch (error) {
+    return defaultState;
+  }
+}
 
-        <section class="section story-panel">
-          <div class="container split-layout">
-            <div class="story-copy">
-              <p class="eyebrow glow">The operation</p>
-              <h3>Big flavor. Clean swagger. No half-measures.</h3>
-              <p>
-                We serve the kind of food that feels custom-built for after-dark conversations — high-end,
-                slightly dangerous, and impossible to forget. Think premium ingredients, heavy smoke, and a room
-                designed for memorable nights.
-              </p>
-              <ul class="feature-list">
-                <li>Private chef drop-ins and curated events</li>
-                <li>Signature menus built for bold crowds</li>
-                <li>Late-night food service with premium presentation</li>
-              </ul>
-            </div>
+function createLeadRecord(kind, payload) {
+  return {
+    id: `${kind}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+    kind,
+    ...payload,
+    createdAt: new Date().toISOString()
+  };
+}
 
-            <div class="story-cards glass-panel">
-              <div class="story-card">
-                <span class="tag">Custom</span>
-                <h4>Event-ready menus</h4>
-                <p>High-impact food programs tuned to private parties, launches, and packed nightlife nights.</p>
-              </div>
-              <div class="story-card">
-                <span class="tag accent">Cinematic</span>
-                <h4>Atmosphere-driven service</h4>
-                <p>Lighting, pacing, and presentation designed to make every room feel like an opening scene.</p>
-              </div>
-            </div>
-          </div>
-        </section>
+app.use(cors());
+app.use(express.json({ limit: '1mb' }));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'capn-cook-super-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 12
+    }
+  })
+);
+app.use(express.static(path.join(__dirname, 'public')));
 
-        <section id="menu" class="section">
-          <div class="container">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow glow">Signature menu</p>
-                <h3>Built for the after-hours crowd.</h3>
-              </div>
-              <div class="chip-row">
-                <button class="filter-chip active" data-filter="all">All</button>
-                <button class="filter-chip" data-filter="Signature">Signature</button>
-                <button class="filter-chip" data-filter="Street Eats">Street Eats</button>
-                <button class="filter-chip" data-filter="Chef Special">Chef Special</button>
-              </div>
-            </div>
-            <div id="menu-grid" class="menu-grid"></div>
-          </div>
-        </section>
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, service: 'Capn Cook', timestamp: new Date().toISOString() });
+});
 
-        <section id="gallery" class="section">
-          <div class="container">
-            <div class="section-head narrow">
-              <p class="eyebrow glow">The scene</p>
-              <h3>Captured in neon and smoke.</h3>
-            </div>
-            <div id="gallery-grid" class="gallery-grid"></div>
-          </div>
-        </section>
+app.get('/api/brand', (req, res) => {
+  res.json(readStore().brand);
+});
 
-        <section id="reviews" class="section">
-          <div class="container">
-            <div class="section-head narrow">
-              <p class="eyebrow glow">Testimonials</p>
-              <h3>Good reviews. Better stories.</h3>
-            </div>
-            <div id="testimonial-grid" class="testimonial-grid"></div>
-          </div>
-        </section>
+app.get('/api/menu', (req, res) => {
+  res.json(readStore().menu);
+});
 
-        <section id="book" class="section booking-section">
-          <div class="container booking-grid">
-            <div class="booking-copy">
-              <p class="eyebrow glow">Private bookings</p>
-              <h3>Put your next event on the map.</h3>
-              <p>
-                Whether it's a private dinner, product launch, or a full-night takeover, Capn Cook builds a flow
-                tailored for the room and the vibe.
-              </p>
-              <div class="mini-metrics" id="performance-metrics"></div>
-            </div>
+app.get('/api/gallery', (req, res) => {
+  res.json(readStore().gallery);
+});
 
-            <div class="glass-panel form-panel">
-              <form id="booking-form">
-                <div class="field-row two-up">
-                  <label>
-                    Event type
-                    <select id="event-type" name="eventType" required>
-                      <option value="">Select</option>
-                      <option value="Private dinner">Private dinner</option>
-                      <option value="Launch party">Launch party</option>
-                      <option value="Nightlife takeover">Nightlife takeover</option>
-                      <option value="Brand pop-up">Brand pop-up</option>
-                    </select>
-                  </label>
-                  <label>
-                    Guest count
-                    <input id="guest-count" name="guests" type="number" min="10" max="500" placeholder="40" required />
-                  </label>
-                </div>
+app.get('/api/testimonials', (req, res) => {
+  res.json(readStore().testimonials);
+});
 
-                <label>
-                  Date
-                  <input id="event-date" name="date" type="date" required />
-                </label>
+app.get('/api/stats', (req, res) => {
+  res.json(readStore().stats);
+});
 
-                <label>
-                  Notes
-                  <textarea id="event-notes" name="notes" rows="4" placeholder="Tell us the tone, flow, and what kind of room you want."></textarea>
-                </label>
+app.get('/api/performance', (req, res) => {
+  res.json(readStore().performance);
+});
 
-                <button class="btn primary submit-btn" type="submit">Request a booking</button>
-              </form>
-            </div>
-          </div>
-        </section>
+app.get('/api/roster', (req, res) => {
+  res.json(readStore().roster);
+});
 
-        <section class="section contact-wrap">
-          <div class="container contact-grid">
-            <div class="glass-panel contact-card">
-              <p class="eyebrow glow">Contact</p>
-              <h3>Reach the crew.</h3>
-              <ul>
-                <li>Call: <a href="tel:+15055553357">+1 (505) 555-COOK</a></li>
-                <li>Email: <a href="mailto:hello@capncook.co">hello@capncook.co</a></li>
-                <li>Instagram: <a href="#">@capncooklab</a></li>
-              </ul>
-            </div>
+app.get('/api/schedule', (req, res) => {
+  res.json(readStore().schedule);
+});
 
-            <div class="glass-panel form-panel">
-              <form id="contact-form">
-                <label>
-                  Name
-                  <input id="contact-name" name="name" type="text" placeholder="Your name" required />
-                </label>
-                <label>
-                  Email
-                  <input id="contact-email" name="email" type="email" placeholder="you@example.com" required />
-                </label>
-                <label>
-                  Service
-                  <select id="contact-service" name="service">
-                    <option value="Private event">Private event</option>
-                    <option value="Catering">Catering</option>
-                    <option value="Brand activation">Brand activation</option>
-                    <option value="General inquiry">General inquiry</option>
-                  </select>
-                </label>
-                <label>
-                  Message
-                  <textarea id="contact-message" name="message" rows="4" placeholder="Tell us what kind of room, mood, and menu you're chasing." required></textarea>
-                </label>
-                <button class="btn primary submit-btn" type="submit">Send inquiry</button>
-              </form>
-            </div>
-          </div>
-        </section>
-      </main>
+app.get('/api/operations', (req, res) => {
+  res.json(readStore().operations);
+});
 
-      <footer class="site-footer">
-        <div class="container footer-wrap">
-          <div>
-            <p class="eyebrow glow">Capn Cook</p>
-            <span>Heat. Hustle. Hospitality.</span>
-          </div>
-          <div class="footer-links">
-            <a href="#about">About</a>
-            <a href="#menu">Menu</a>
-            <a href="#book">Book</a>
-          </div>
-        </div>
-      </footer>
-    </div>
+app.get('/api/leads', (req, res) => {
+  const state = readStore();
+  res.json(state.leads || []);
+});
 
-    <div id="toast" class="toast" aria-live="polite"></div>
-    <script src="/app.js"></script>
-  </body>
-</html>
+app.post('/api/contact', (req, res) => {
+  const { name, email, service, message } = req.body || {};
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ success: false, error: 'Name, email, and message are required.' });
+  }
+
+  const state = readStore();
+  const lead = createLeadRecord('contact', { name, email, service: service || 'General inquiry', message });
+  state.leads.push(lead);
+  saveStore(state);
+
+  res.status(201).json({ success: true, message: 'Inquiry received. The Capn Cook crew will follow up shortly.', lead });
+});
+
+app.post('/api/booking', (req, res) => {
+  const { eventType, guests, date, notes } = req.body || {};
+
+  if (!eventType || !guests || !date) {
+    return res.status(400).json({ success: false, error: 'Event type, guest count, and date are required.' });
+  }
+
+  const state = readStore();
+  const lead = createLeadRecord('booking', {
+    eventType,
+    guests,
+    date,
+    notes: notes || 'No extra notes'
+  });
+
+  state.leads.push(lead);
+  saveStore(state);
+
+  res.status(201).json({ success: true, message: 'Booking request queued. A crew member will contact you.', lead });
+});
+
+app.post('/api/admin/login', (req, res) => {
+  const { email, password } = req.body || {};
+
+  if (!email || !password) {
+    return res.status(400).json({ success: false, error: 'Email and password are required.' });
+  }
+
+  const validUser = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const validPassword = bcrypt.compareSync(password, ADMIN_HASH);
+
+  if (!validUser || !validPassword) {
+    return res.status(401).json({ success: false, error: 'Invalid credentials.' });
+  }
+
+  req.session.authenticated = true;
+  req.session.user = email;
+
+  res.json({ success: true, user: email });
+});
+
+app.post('/api/admin/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.json({ success: true, message: 'Logged out.' });
+  });
+});
+
+app.get('/api/admin/session', (req, res) => {
+  res.json({ authenticated: !!req.session.authenticated, user: req.session.user || null });
+});
+
+app.get('/api/admin/leads', (req, res) => {
+  if (!req.session.authenticated) {
+    return res.status(401).json({ error: 'Not authenticated.' });
+  }
+
+  const state = readStore();
+  res.json((state.leads || []).slice().reverse());
+});
+
+app.delete('/api/admin/leads/:id', (req, res) => {
+  if (!req.session.authenticated) {
+    return res.status(401).json({ error: 'Not authenticated.' });
+  }
+
+  const state = readStore();
+  const before = state.leads.length;
+  state.leads = (state.leads || []).filter((lead) => lead.id !== req.params.id);
+
+  if (state.leads.length === before) {
+    return res.status(404).json({ success: false, error: 'Lead not found.' });
+  }
+
+  saveStore(state);
+  res.json({ success: true, message: 'Lead removed.' });
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+ensureStore();
+
+app.listen(PORT, () => {
+  console.log(`Capn Cook server live on http://localhost:${PORT}`);
+  console.log(`Admin login: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
+});
